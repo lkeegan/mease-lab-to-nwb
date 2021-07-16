@@ -1,8 +1,14 @@
 name: measelab
+channels:
+  - pytorch-lts
 dependencies:
   - python=3.8
   - pip
   - toml
+  - pytorch
+  - torchvision
+  - torchaudio
+  - cudatoolkit=10.2
   - pip:
     - numpy
     - h5py
@@ -33,3 +39,7 @@ dependencies:
     - spikewidgets==0.5.2
     - git+https://github.com/catalystneuro/nwb-conversion-tools.git@master
     - edlio
+    - herdingspikes
+    - mountainsort4
+    - spyking-circus
+    - tridesclous
