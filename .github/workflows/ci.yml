@@ -39,6 +39,11 @@ jobs:
       - name: Install test requirements
         run: pip install -r requirements-test.txt
       - name: Get test data
-        run: curl -kLSs https://gin.g-node.org/NeuralEnsemble/ephy_testing_data/raw/master/spike2/m365_1sec.smrx -o tests/data/m365_1sec.smrx
+        run: |
+          cd tests/data
+          curl -kLSs https://github.com/ssciwr/mease-test-data/releases/download/rolling/data.tgz -o data.tgz
+          tar -xzvf data.tgz
+          pwd
+          ls
       - name: Run tests
         run: pytest -v
