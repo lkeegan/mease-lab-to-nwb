@@ -145,3 +145,65 @@ def test_cednwbconverter_mech_laser(tmp_path):
     assert type(traces) == pynwb.ecephys.ElectricalSeries
     assert traces.data.shape == (60060, 64)
     io.close()
+
+
+def test_cednwbconverter_dual_laser(tmp_path):
+    # read smrx file
+    file_recording = str(
+        (
+            Path(__file__).parent / "data" / "Dual_RhdD_H3__RhdC_H5_LaserOnly.smrx"
+        ).resolve()
+    )
+    source_data = dict(
+        CEDRecording=dict(file_path=file_recording),
+        CEDStimulus=dict(file_path=file_recording),
+    )
+    converter = CEDNWBConverter(source_data=source_data)
+    rec_ids = source_data["CEDRecording"]["smrx_channel_ids"]
+    # recording contains two probes
+    assert len(rec_ids) == 128
+    stim_ids = source_data["CEDStimulus"]["smrx_channel_ids"]
+    assert len(stim_ids) == 3
+    # convert to nwb
+    file_nwb = str(tmp_path / "m365_1sec.nwb")
+    to_nwbfile(converter, file_nwb)
+    # read nwb file
+    io = pynwb.NWBHDF5IO(file_nwb, "r")
+    nwbfile = io.read()
+    assert len(nwbfile.stimulus) == 4
+    # laser trace
+    laser = nwbfile.stimulus["Laser"]
+    assert type(laser) == pynwb.ogen.OptogeneticSeries
+    assert len(laser.data) == 30030
+    assert laser.starting_time == 0
+    assert laser.rate == 30030.030030030033
+    # laser stim
+    laser_stim = nwbfile.stimulus["LaserStimulus"]
+    assert type(laser_stim) == pynwb.misc.IntervalSeries
+    assert len(laser_stim.data) == 20
+    assert len(laser_stim.timestamps) == 20
+    assert np.allclose(laser_stim.data[0:4], [1, -1, 1, -1])
+    assert np.allclose(laser_stim.data[-4:], [1, -1, 1, -1])
+    assert np.allclose(
+        laser_stim.timestamps[0:4], [0.0021312, 0.0121545, 0.1021311, 0.1121544]
+    )
+    assert np.allclose(
+        laser_stim.timestamps[-4:], [0.8021637, 0.8121537, 0.9021636, 0.9121536]
+    )
+    # mech trace
+    mech = nwbfile.stimulus["MechanicalPressure"]
+    assert type(mech) == pynwb.base.TimeSeries
+    assert len(mech.data) == 30030
+    assert mech.rate == 30030.030030030033
+    assert mech.starting_time == 0
+    # mech stim (none in this smrx file)
+    mech_stim = nwbfile.stimulus["MechanicalStimulus"]
+    assert type(mech_stim) == pynwb.misc.IntervalSeries
+    assert len(mech_stim.data) == 0
+    assert len(mech_stim.timestamps) == 0
+    # traces
+    assert len(nwbfile.acquisition) == 1
+    traces = nwbfile.acquisition["ElectricalSeries_raw"]
+    assert type(traces) == pynwb.ecephys.ElectricalSeries
+    assert traces.data.shape == (30030, 128)
+    io.close()
