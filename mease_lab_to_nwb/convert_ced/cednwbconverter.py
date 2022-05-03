@@ -3,10 +3,14 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional
 
-import spikeextractors as se
 from pynwb import NWBHDF5IO
-from nwb_conversion_tools import NWBConverter, CEDRecordingInterface
-from nwb_conversion_tools.utils.spike_interface import write_recording
+from nwb_conversion_tools import (
+    NWBConverter,
+    CEDRecordingInterface,
+    KiloSortingInterface,
+)
+from spikeinterface import BaseRecording, BaseSorting
+from nwb_conversion_tools import spikeinterface
 
 from .cedstimulusinterface import CEDStimulusInterface
 from .elabftwinterface import ElabftwInterface
@@ -17,8 +21,8 @@ def quick_write(
     session_description: str,
     session_start: str,
     save_path: str,
-    sorting: Optional[se.SortingExtractor] = None,
-    recording_lfp: Optional[se.RecordingExtractor] = None,
+    sorting: Optional[BaseSorting] = None,
+    recording_lfp: Optional[BaseRecording] = None,
     overwrite: bool = False,
 ):
     """Automatically extracts required session info from ced_file_path and writes NWBFile in spikeextractors."""
@@ -30,7 +34,7 @@ def quick_write(
         session_id=session_id,
     )
     if sorting is not None:
-        se.NwbSortingExtractor.write_sorting(
+        spikeinterface.add_units(
             sorting=sorting,
             save_path=save_path,
             overwrite=overwrite,
@@ -39,7 +43,9 @@ def quick_write(
             **nwbfile_kwargs
         )
     if recording_lfp is not None:
-        write_recording(recording=recording_lfp, save_path=save_path, write_as="lfp")
+        spike_interface.write_recording(
+            recording=recording_lfp, save_path=save_path, write_as="lfp"
+        )
 
 
 class CEDNWBConverter(NWBConverter):
@@ -47,6 +53,7 @@ class CEDNWBConverter(NWBConverter):
         CEDRecording=CEDRecordingInterface,
         CEDStimulus=CEDStimulusInterface,
         Elabftw=ElabftwInterface,
+        Kilosort=KiloSortingInterface,
     )
 
     def __init__(self, source_data):
