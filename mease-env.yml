@@ -1,4 +1,4 @@
-name: measelab
+name: measelabX
 dependencies:
   - python=3.8
   - pip
@@ -25,13 +25,13 @@ dependencies:
     - sonpy==1.8.5
     - ndx-events
     - crc32c
-    - neo==0.10.0
+    #- neo
     - spikeinterface
-    - spikeextractors==0.9.8
-    - spiketoolkit==0.7.4
-    - spikesorters==0.4.4
-    - spikecomparison==0.3.2
-    - spikewidgets==0.5.2
+    #- spikeextractors==0.9.8
+    #- spiketoolkit==0.7.4
+    #- spikesorters==0.4.4
+    #- spikecomparison==0.3.2
+    #- spikewidgets==0.5.2
     - nwb-conversion-tools
     - nwbwidgets
     - edlio
