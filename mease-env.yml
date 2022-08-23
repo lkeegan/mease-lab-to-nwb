@@ -16,7 +16,7 @@ dependencies:
     - pyqt5
     - pyqtwebengine
     - klusta
-    - klustakwik2
+#    - klustakwik2
     - jupyterlab
     - Pint
     - xxhash
